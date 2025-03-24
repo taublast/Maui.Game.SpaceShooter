@@ -100,10 +100,7 @@
 	</ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AppoMobi.Maui.DrawnUi" Version="1.3.60.1" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="DrawnUi.Maui.Game" Version="1.4.0.3-pre" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
   </ItemGroup>
 

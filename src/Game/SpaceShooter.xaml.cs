@@ -7,6 +7,7 @@ using AppoMobi.Maui.Gestures;
 using AppoMobi.Specials;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using DrawnUi.Maui.Game;
 
 namespace SpaceShooter.Game;
 
@@ -113,7 +114,7 @@ public partial class SpaceShooter : MauiGame
 
         IgnoreChildrenInvalidations = true;
 
-        // in case we implement key press for desktop
+        // in case we implement key press 
         Focus();
 
         //prebuilt reusable sprites pools
@@ -157,9 +158,9 @@ public partial class SpaceShooter : MauiGame
         PresentGame();
     }
 
-    protected override void Draw(SkiaDrawingContext context, SKRect destination, float scale)
+    protected override void Draw(DrawingContext context)
     {
-        base.Draw(context, destination, scale);
+        base.Draw(context);
 
         if (_needPrerender)
         {
