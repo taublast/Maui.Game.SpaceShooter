@@ -1,13 +1,15 @@
 // NOTE: Parts of the code below are based on
 // https://www.mooict.com/wpf-c-tutorial-create-a-space-battle-shooter-game-in-visual-studio/7/
 
-global using DrawnUi.Maui.Controls;
+global using DrawnUi.Controls;
 global using SkiaSharp;
 using AppoMobi.Maui.Gestures;
 using AppoMobi.Specials;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using DrawnUi.Maui.Game;
+using DrawnUi.Gaming;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Graphics;
 
 namespace SpaceShooter.Game;
 
@@ -211,7 +213,7 @@ public partial class SpaceShooter : MauiGame
         EnemiesPool.Add(enemy.Uid, enemy);
     }
 
-    protected override void OnChildAdded(SkiaControl child)
+    public override void OnChildAdded(SkiaControl child)
     {
         if (_initialized)
             return; //do not care
@@ -219,7 +221,7 @@ public partial class SpaceShooter : MauiGame
         base.OnChildAdded(child);
     }
 
-    protected override void OnChildRemoved(SkiaControl child)
+    public override void OnChildRemoved(SkiaControl child)
     {
         if (_initialized)
             return; //do not care
