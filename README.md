@@ -17,6 +17,8 @@ Free [Lottie animations](https://lottiefiles.com/) quickly fulfilled the need fo
 
 [DrawnUI](https://github.com/taublast/DrawnUi.Maui) was used to draw virtual controls on a Skia canvas.
 
+Don't miss another game [made with DrawnUI: Breakout](https://github.com/taublast/DrawnUi.Breakout) !
+
 ## _Recap_
 
 * Repo updated with latest DrawnUI nuget providing fluid game timing
