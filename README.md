@@ -4,6 +4,8 @@ https://github.com/taublast/AppoMobi.Maui.DrawnUi.SpaceShooter/assets/25801194/3
 
 Built with [DrawnUI for .NET MAUI](https://github.com/taublast/DrawnUi.Maui)
 
+Don't miss another game [made with DrawnUI: Breakout](https://github.com/taublast/DrawnUi.Breakout) !
+
 ## _The Challenge_
 
 To create a simple yet heavily animated arcade cross-platform game, using .NET MAUI XAML with Skia drawn UI, showing all the advantages that [.NET MAUI](https://learn.microsoft.com/en-us/dotnet/maui) and [SkiaSharp](https://github.com/mono/SkiaSharp) provide. 
@@ -16,8 +18,6 @@ Driven by [one](https://github.com/mooict/WPF-Space-shooter-game) of the awesome
 Free [Lottie animations](https://lottiefiles.com/) quickly fulfilled the need for animated content.
 
 [DrawnUI](https://github.com/taublast/DrawnUi.Maui) was used to draw virtual controls on a Skia canvas.
-
-Don't miss another game [made with DrawnUI: Breakout](https://github.com/taublast/DrawnUi.Breakout) !
 
 ## _Recap_
 
