@@ -16,7 +16,6 @@
     <!--  STARS BACKGROUND  -->
     <draw:SkiaLayout
         HorizontalOptions="Fill"
-        IsVisible="True"
         UseCache="Image"
         VerticalOptions="Fill"
         ZIndex="-1">
@@ -24,7 +23,7 @@
         <draw:SkiaImage
             Aspect="AspectCover"
             HorizontalOptions="Fill"
-            Opacity="0.33"
+            Opacity="0.375"
             Source="Space/Sprites/nebula.jpg"
             VerticalOptions="Fill" />
 
@@ -44,8 +43,9 @@
         x:Name="ParallaxLayer"
         HorizontalOptions="Fill"
         Source="Space/Sprites/stars.png"
+        Tag="ParallaxLayer"
         TileAspect="Cover"
-        TileCacheType="GPU"
+        TileCacheType="Image"
         TileHeight="600"
         TileWidth="600"
         VerticalOptions="Fill" />
@@ -63,7 +63,7 @@
         StrokeColor="Black"
         StrokeWidth="2"
         TextColor="White"
-        UseCache="GPU"
+        UseCache="Image"
         ZIndex="110">
 
         <draw:SkiaControl.UseCache>
@@ -106,7 +106,7 @@
         StrokeColor="Black"
         StrokeWidth="2"
         TextColor="White"
-        UseCache="GPU"
+        UseCache="Image"
         ZIndex="110">
 
         <draw:SkiaControl.UseCache>
@@ -186,6 +186,7 @@
     <!--  HEALTH BAR  -->
     <game:HealthBar
         x:Name="HealthBar"
+        x:DataType="game:SpaceShooter"
         HeightRequest="4"
         HorizontalOptions="Center"
         Tag="Health"
@@ -212,6 +213,7 @@
     <!--  DIALOG  -->
     <draw:SkiaLayout
         Margin="50"
+        x:DataType="game:SpaceShooter"
         HeightRequest="-1"
         HorizontalOptions="Center"
         IsVisible="{Binding ShowDialog}"
@@ -305,6 +307,7 @@
                         VerticalOptions="Start">
 
                         <draw:SkiaLabel
+                            x:DataType="game:SpaceShooter"
                             CharacterSpacing="2.5"
                             FontFamily="FontGameExtraBold"
                             FontSize="20"
@@ -339,15 +342,18 @@
                         <!--  BUTTON  -->
                         <draw:SkiaShape
                             draw:AddGestures.CommandTapped="{Binding CommandPressedOk}"
+                            x:DataType="game:SpaceShooter"
                             BackgroundColor="#33000000"
                             CornerRadius="8"
                             HeightRequest="34"
                             HorizontalOptions="Center"
                             StrokeColor="#cc33FF44"
                             StrokeWidth="0.55"
+                            Tag="DialogBtn"
                             WidthRequest="90">
 
                             <draw:SkiaLabel
+                                x:DataType="game:SpaceShooter"
                                 CharacterSpacing="1.75"
                                 FontFamily="FontGameMedium"
                                 FontSize="16"

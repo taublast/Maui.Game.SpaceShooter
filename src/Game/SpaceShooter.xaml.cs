@@ -2,14 +2,13 @@
 // https://www.mooict.com/wpf-c-tutorial-create-a-space-battle-shooter-game-in-visual-studio/7/
 
 global using DrawnUi.Controls;
-global using SkiaSharp;
-using AppoMobi.Maui.Gestures;
-using AppoMobi.Specials;
+using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using AppoMobi.Maui.Gestures;
+using AppoMobi.Specials;
 using DrawnUi.Gaming;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Graphics;
+using SkiaSharp;
 
 namespace SpaceShooter.Game;
 
@@ -54,6 +53,8 @@ public partial class SpaceShooter : MauiGame
 
     public SpaceShooter()
     {
+        //MauiGame.FrameInterpolatorDisabled=true;
+
         InitializeComponent();
 
         BindingContext = this;
@@ -66,11 +67,14 @@ public partial class SpaceShooter : MauiGame
     /// </summary>
     public static SpaceShooter Instance { get; set; }
 
-    protected override void OnBindingContextChanged()
+    public override void SetInheritedBindingContext(object context)
     {
-        base.OnBindingContextChanged();
+        if (BindingContext != null)
+        {
+            return;
+        }
 
-        BindingContext = this; //insist in case parent view might set its own
+        base.SetInheritedBindingContext(context);
     }
 
     protected override void OnLayoutReady()
@@ -116,7 +120,7 @@ public partial class SpaceShooter : MauiGame
 
         IgnoreChildrenInvalidations = true;
 
-        // in case we implement key press 
+        // in case we implement key press for desktop
         Focus();
 
         //prebuilt reusable sprites pools
@@ -233,14 +237,14 @@ public partial class SpaceShooter : MauiGame
 
     #region GAME LOOP
 
-    public override void GameLoop(float deltaMs)
+    public override void GameLoop(float deltaSeconds)
     {
-        base.GameLoop(deltaMs);
+        base.GameLoop(deltaSeconds);
 
         if (State == GameState.Playing)
         {
             //update stars parallax
-            ParallaxLayer.TileOffsetY -= STARS_SPEED * deltaMs;
+            ParallaxLayer.TileOffsetY -= STARS_SPEED * deltaSeconds;
 
             // get the player hit box
             var playerPosition = Player.GetPositionOnCanvasInPoints();
@@ -292,7 +296,7 @@ public partial class SpaceShooter : MauiGame
                     // if enemy is still alive it can move..
                     if (enemySprite.IsActive)
                     {
-                        enemySprite.UpdatePosition(deltaMs);
+                        enemySprite.UpdatePosition(deltaSeconds);
                     }
 
                 }
@@ -310,14 +314,14 @@ public partial class SpaceShooter : MauiGame
                         // move the bullet rectangle towards top of the screen
                         if (bulletSprite.IsActive)
                         {
-                            bulletSprite.UpdatePosition(deltaMs);
+                            bulletSprite.UpdatePosition(deltaSeconds);
                         }
                     }
                 }
             }
 
             // reduce time we wait between enemy creations
-            _pauseEnemyCreation -= 1 * deltaMs;
+            _pauseEnemyCreation -= 1 * deltaSeconds;
 
             // our logic for calculating time between enemy spans according to difficulty and current score
             if (_pauseEnemyCreation < 0)
@@ -348,12 +352,12 @@ public partial class SpaceShooter : MauiGame
             // player movement
             if (_moveLeft)
             {
-                UpdatePlayerPosition(Player.TranslationX - PLAYER_SPEED * deltaMs);
+                UpdatePlayerPosition(Player.TranslationX - PLAYER_SPEED * deltaSeconds);
             }
 
             if (_moveRight)
             {
-                UpdatePlayerPosition(Player.TranslationX + PLAYER_SPEED * deltaMs);
+                UpdatePlayerPosition(Player.TranslationX + PLAYER_SPEED * deltaSeconds);
             }
 
             if (Health < 1)
@@ -441,14 +445,11 @@ public partial class SpaceShooter : MauiGame
 
     void StartNewGame()
     {
-        lock (_lockSpritesToBeRemovedLater)
+        foreach (var control in Views)
         {
-            foreach (var control in Views)
+            if (control is EnemySprite || control is BulletSprite)
             {
-                if (control is EnemySprite || control is BulletSprite)
-                {
-                    _spritesToBeRemovedLater.Enqueue(control);
-                }
+                _spritesToBeRemovedLater.Enqueue(control);
             }
         }
 
@@ -610,10 +611,7 @@ public partial class SpaceShooter : MauiGame
         sprite.IsActive = false;
         sprite.AnimateDisappearing().ContinueWith((s) =>
         {
-            lock (_lockSpritesToBeRemovedLater)
-            {
-                _spritesToBeRemovedLater.Enqueue(sprite as SkiaControl);
-            }
+            _spritesToBeRemovedLater.Enqueue(sprite as SkiaControl);
         }).ConfigureAwait(false);
     }
 
@@ -648,16 +646,14 @@ public partial class SpaceShooter : MauiGame
     void ProcessSpritesToBeRemoved()
     {
         SkiaControl sprite;
-        lock (_lockSpritesToBeRemovedLater)
+        while (_spritesToBeRemovedLater.Count > 0)
         {
-            while (_spritesToBeRemovedLater.Count > 0)
+            if (_spritesToBeRemovedLater.TryDequeue(out sprite))
             {
-                if (_spritesToBeRemovedLater.TryDequeue(out sprite))
-                {
-                    RemoveSprite(sprite);
-                }
+                RemoveSprite(sprite);
             }
         }
+
     }
 
     #endregion
@@ -710,7 +706,7 @@ public partial class SpaceShooter : MauiGame
     {
         var key = MapToGame(mauiKey);
 
-        if ((key == GameKey.Fire || mauiKey == MauiKey.Enter) && (State == GameState.Ready || State == GameState.Ended))
+        if (key == GameKey.Fire && (State == GameState.Ready || State == GameState.Ended))
         {
             StartNewGame();
             return;
@@ -768,7 +764,7 @@ public partial class SpaceShooter : MauiGame
         if (State == GameState.Playing)
         {
             var velocityX = (float)(args.Event.Distance.Velocity.X / RenderingScale);
-            //var velocityY = (float)(args.Distance.Velocity.Y / RenderingScale);
+            //var velocityY = (float)(args.Event.Distance.Velocity.Y / RenderingScale);
 
             if (args.Type == TouchActionResult.Panning)
             {
@@ -833,35 +829,35 @@ public partial class SpaceShooter : MauiGame
         LabelHiScore.Text = HiScoreLocalized;
     }
 
-    private string _dialogMessage;
+    private string _DialogMessage;
     public string DialogMessage
     {
         get
         {
-            return _dialogMessage;
+            return _DialogMessage;
         }
         set
         {
-            if (_dialogMessage != value)
+            if (_DialogMessage != value)
             {
-                _dialogMessage = value;
+                _DialogMessage = value;
                 OnPropertyChanged();
             }
         }
     }
 
-    private string _dialogButton = "OK"; //can localize
+    private string _DialogButton = "OK"; //can localize
     public string DialogButton
     {
         get
         {
-            return _dialogButton;
+            return _DialogButton;
         }
         set
         {
-            if (_dialogButton != value)
+            if (_DialogButton != value)
             {
-                _dialogButton = value;
+                _DialogButton = value;
                 OnPropertyChanged();
             }
         }
@@ -900,18 +896,18 @@ public partial class SpaceShooter : MauiGame
         }
     }
 
-    private int _score;
+    private int _Score;
     public int Score
     {
         get
         {
-            return _score;
+            return _Score;
         }
         set
         {
-            if (_score != value)
+            if (_Score != value)
             {
-                _score = value;
+                _Score = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ScoreLocalized));
 
@@ -923,36 +919,36 @@ public partial class SpaceShooter : MauiGame
         }
     }
 
-    private int _hiScore = 500;
+    private int _HiScore = 500;
     public int HiScore
     {
         get
         {
-            return _hiScore;
+            return _HiScore;
         }
         set
         {
-            if (_hiScore != value)
+            if (_HiScore != value)
             {
-                _hiScore = value;
+                _HiScore = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HiScoreLocalized));
             }
         }
     }
 
-    private bool _showDialog;
+    private bool _ShowDialog;
     public bool ShowDialog
     {
         get
         {
-            return _showDialog && _appeared;
+            return _ShowDialog && _appeared;
         }
         set
         {
-            if (_showDialog != value)
+            if (_ShowDialog != value)
             {
-                _showDialog = value;
+                _ShowDialog = value;
                 OnPropertyChanged();
             }
         }
@@ -978,12 +974,12 @@ public partial class SpaceShooter : MauiGame
     /// <summary>
     /// This could be changed from loop and from individual sprite animatiion thread
     /// </summary>
-    private Queue<SkiaControl> _spritesToBeRemovedLater = new();
-    private object _lockSpritesToBeRemovedLater = new();
+    private ConcurrentQueue<SkiaControl> _spritesToBeRemovedLater = new();
+
     private List<SkiaControl> _spritesToBeAdded = new(128);
     private List<SkiaControl> _startAnimations = new(MAX_EXPLOSIONS);
     private float _pauseEnemyCreation;
-    private SKRect _playerHitBox;
+    private SKRect _playerHitBox = new();
     private bool _needPrerender;
     private bool _initialized;
     private GameState _lastState;
